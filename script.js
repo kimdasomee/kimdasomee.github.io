@@ -14,10 +14,7 @@
   const bestValueEl = document.getElementById("best-value");
   const canvas = document.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
-  const btnFlap = document.getElementById("btn-flap");
-  const btnDive = document.getElementById("btn-dive");
   const btnStart = document.getElementById("btn-start");
-  const btnPause = document.getElementById("btn-pause");
   const btnRestart = document.getElementById("btn-restart");
 
   const STORAGE_STAGE = "kimdasomee.unlockStage";
@@ -25,7 +22,6 @@
 
   const state = {
     running: false,
-    paused: false,
     gameOver: false,
     score: 0,
     bestScore: Number(localStorage.getItem(STORAGE_BEST) || 0),
@@ -42,7 +38,6 @@
   const config = {
     gravity: 1800,
     flapVelocity: -560,
-    diveVelocity: 350,
     birdRadius: 18,
     pipeWidth: 82,
     gapMin: 164,
@@ -52,14 +47,7 @@
     stageThresholds: [0, 1, 2, 3, 4, 5],
   };
 
-  const stageLabels = [
-    "대기",
-    "1단계",
-    "2단계",
-    "3단계",
-    "4단계",
-    "최종 단계",
-  ];
+  const stageLabels = ["대기", "소개", "경력", "프로젝트", "교육·자격·특허", "연락처"];
 
   const saveProgress = () => {
     localStorage.setItem(STORAGE_STAGE, String(state.unlockStage));
@@ -88,8 +76,7 @@
     state.unlockStage = Math.max(state.unlockStage, stage);
     stageSections.forEach((section) => {
       const required = Number(section.dataset.requiredStage);
-      const unlocked = state.unlockStage >= required;
-      section.classList.toggle("is-unlocked", unlocked);
+      section.classList.toggle("is-unlocked", state.unlockStage >= required);
     });
     stageItems.forEach((item) => {
       const target = Number(item.dataset.stageTarget);
@@ -107,8 +94,11 @@
     );
     if (nextStage !== state.stage) {
       state.stage = nextStage;
-      setOverlay(stageLabels[nextStage], nextStage === 5 ? "최종 단계가 열렸습니다." : "섹션 잠금이 해제되었습니다.");
       setUnlockedStage(nextStage);
+      setOverlay(
+        stageLabels[nextStage],
+        nextStage === 5 ? "최종 단계가 열렸습니다." : "섹션 잠금이 해제되었습니다."
+      );
     } else {
       updateHud();
     }
@@ -139,7 +129,6 @@
   const resetRun = (keepProgress = true) => {
     state.runId += 1;
     state.running = false;
-    state.paused = false;
     state.gameOver = false;
     state.score = 0;
     state.stage = keepProgress ? state.unlockStage : 0;
@@ -148,9 +137,8 @@
     state.lastFrame = 0;
     resetBird();
     updateHud();
-    setOverlay("준비 완료", "시작 버튼이나 위 버튼으로 게임을 시작하세요.");
+    setOverlay("준비 완료", "시작 버튼을 누른 뒤 스페이스바로 조작하세요.");
     setGameState("대기");
-    btnPause.textContent = "일시정지";
   };
 
   const startRun = () => {
@@ -161,26 +149,12 @@
       return;
     }
     state.running = true;
-    state.paused = false;
-    setOverlay("게임 진행 중", "위/Space 또는 위 버튼으로 비행하세요.");
+    state.gameOver = false;
+    setOverlay("게임 진행 중", "스페이스바 또는 화면 탭으로 비행하세요.");
     setGameState("진행 중");
-    btnPause.textContent = "일시정지";
     state.lastFrame = performance.now();
     const activeRunId = state.runId;
     requestAnimationFrame((time) => loop(time, activeRunId));
-  };
-
-  const togglePause = () => {
-    if (!state.running || state.gameOver) return;
-    state.paused = !state.paused;
-    setGameState(state.paused ? "일시정지" : "진행 중");
-    btnPause.textContent = state.paused ? "재개" : "일시정지";
-    setOverlay(state.paused ? "일시정지" : "게임 진행 중", state.paused ? "재개하면 계속 진행됩니다." : "계속 앞으로 나아가세요.");
-    if (!state.paused) {
-      state.lastFrame = performance.now();
-      const activeRunId = state.runId;
-      requestAnimationFrame((time) => loop(time, activeRunId));
-    }
   };
 
   const flap = () => {
@@ -190,13 +164,7 @@
     }
     state.bird.vy = config.flapVelocity;
     setGameState("진행 중");
-    setOverlay("비행 중", "장애물을 피하며 스테이지를 클리어하세요.");
-  };
-
-  const dive = () => {
-    if (!state.running || state.paused || state.gameOver) return;
-    state.bird.vy = config.diveVelocity;
-    setOverlay("하강 중", "고도를 조정할 때만 잠깐 사용하세요.");
+    setOverlay("비행 중", "스페이스바로 조작하며 스테이지를 클리어하세요.");
   };
 
   const createPipe = () => {
@@ -224,17 +192,15 @@
   const endGame = () => {
     state.running = false;
     state.gameOver = true;
-    state.paused = false;
     state.bestScore = Math.max(state.bestScore, state.score);
     saveProgress();
     updateHud();
     setGameState("게임 오버");
     setOverlay("게임 오버", "재시작 버튼으로 다시 도전하세요.");
-    btnPause.textContent = "일시정지";
   };
 
   const update = (delta) => {
-    if (!state.running || state.paused || state.gameOver) return;
+    if (!state.running || state.gameOver) return;
 
     state.spawnTimer += delta;
     if (state.spawnTimer >= config.spawnInterval) {
@@ -290,15 +256,6 @@
         endGame();
         return;
       }
-      if (
-        birdRect.x < pipe.x + config.pipeWidth &&
-        birdRect.x + birdRect.w > pipe.x &&
-        birdRect.y < pipe.gapTop &&
-        birdRect.y + birdRect.h > 0
-      ) {
-        endGame();
-        return;
-      }
     }
 
     updateHud();
@@ -318,13 +275,6 @@
     glow.addColorStop(1, "transparent");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, width, height);
-
-    ctx.fillStyle = "rgba(255,255,255,0.05)";
-    for (let i = 0; i < 18; i += 1) {
-      const x = (i * 73 + (state.score * 7)) % width;
-      const y = (i * 41 + 30) % height;
-      ctx.fillRect(x, y, 2, 2);
-    }
   };
 
   const drawPipes = () => {
@@ -338,14 +288,6 @@
       ctx.fillStyle = pipeGradient;
       ctx.fillRect(pipe.x, 0, config.pipeWidth, pipe.gapTop);
       ctx.fillRect(pipe.x, pipe.gapTop + pipe.gapHeight, config.pipeWidth, height);
-
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
-      ctx.fillRect(pipe.x + config.pipeWidth - 12, 0, 12, pipe.gapTop);
-      ctx.fillRect(pipe.x + config.pipeWidth - 12, pipe.gapTop + pipe.gapHeight, 12, height);
-
-      ctx.fillStyle = "rgba(255,255,255,0.24)";
-      ctx.fillRect(pipe.x - 4, pipe.gapTop - 14, config.pipeWidth + 8, 14);
-      ctx.fillRect(pipe.x - 4, pipe.gapTop + pipe.gapHeight, config.pipeWidth + 8, 14);
     });
 
     ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
@@ -406,22 +348,16 @@
     state.lastFrame = time;
     update(delta);
     render();
-    if (state.running && !state.paused && !state.gameOver) {
+    if (state.running && !state.gameOver) {
       requestAnimationFrame((nextTime) => loop(nextTime, runId));
     }
   };
 
   const handleKeydown = (event) => {
     const key = event.key.toLowerCase();
-    if (key === " " || key === "arrowup" || key === "w") {
+    if (key === " " || key === "spacebar") {
       event.preventDefault();
       flap();
-    } else if (key === "arrowdown" || key === "s") {
-      event.preventDefault();
-      dive();
-    } else if (key === "p") {
-      event.preventDefault();
-      togglePause();
     } else if (key === "r") {
       event.preventDefault();
       resetRun(true);
@@ -435,16 +371,11 @@
     navToggle.setAttribute("aria-expanded", String(!open));
   });
 
-  btnFlap?.addEventListener("pointerdown", (event) => {
+  canvas?.addEventListener("pointerdown", (event) => {
     event.preventDefault();
     flap();
   });
-  btnDive?.addEventListener("pointerdown", (event) => {
-    event.preventDefault();
-    dive();
-  });
   btnStart?.addEventListener("click", startRun);
-  btnPause?.addEventListener("click", togglePause);
   btnRestart?.addEventListener("click", () => {
     resetRun(true);
     startRun();
@@ -464,7 +395,7 @@
     updateHud();
     render();
     resetRun(true);
-    setOverlay("준비 완료", "시작 버튼이나 위 버튼으로 게임을 시작하세요.");
+    setOverlay("준비 완료", "시작 버튼을 누른 뒤 스페이스바로 조작하세요.");
     setGameState("대기");
   };
 
