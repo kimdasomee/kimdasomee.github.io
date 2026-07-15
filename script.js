@@ -1,7 +1,7 @@
 (() => {
   const navToggle = document.querySelector(".nav-toggle");
   const siteHeader = document.querySelector(".site-header");
-  const stageCards = Array.from(document.querySelectorAll("[data-required-stage]"));
+  const stageSections = Array.from(document.querySelectorAll("[data-required-stage]"));
   const stageItems = Array.from(document.querySelectorAll("[data-stage-target]"));
   const overlayTitle = document.getElementById("overlay-title");
   const overlayCopy = document.getElementById("overlay-copy");
@@ -23,14 +23,6 @@
   const STORAGE_STAGE = "kimdasomee.unlockStage";
   const STORAGE_BEST = "kimdasomee.bestScore";
 
-  const stageUnlockMap = {
-    1: [1],
-    2: [2],
-    3: [3],
-    4: [4],
-    5: [5],
-  };
-
   const state = {
     running: false,
     paused: false,
@@ -43,6 +35,7 @@
     pipes: [],
     spawnTimer: 0,
     lastFrame: 0,
+    runId: 0,
     dimensions: { width: 960, height: 540 },
   };
 
@@ -60,12 +53,12 @@
   };
 
   const stageLabels = [
-    "Ready",
-    "Stage 1",
-    "Stage 2",
-    "Stage 3",
-    "Stage 4",
-    "Final Stage",
+    "대기",
+    "1단계",
+    "2단계",
+    "3단계",
+    "4단계",
+    "최종 단계",
   ];
 
   const saveProgress = () => {
@@ -83,19 +76,20 @@
   };
 
   const updateHud = () => {
-    currentStageEl.textContent = stageLabels[state.stage] || "Stage 0";
+    currentStageEl.textContent = stageLabels[state.stage] || "대기";
     scoreValueEl.textContent = String(state.score);
     stageValueEl.textContent = String(state.stage);
     bestScoreEl.textContent = String(state.bestScore);
     bestValueEl.textContent = String(state.bestScore);
-    unlockedCountEl.textContent = `${Math.max(state.unlockStage, 1)} / 5`;
+    unlockedCountEl.textContent = `${state.unlockStage} / 5`;
   };
 
   const setUnlockedStage = (stage) => {
     state.unlockStage = Math.max(state.unlockStage, stage);
-    stageCards.forEach((card) => {
-      const required = Number(card.dataset.requiredStage);
-      card.classList.toggle("is-unlocked", state.unlockStage >= required);
+    stageSections.forEach((section) => {
+      const required = Number(section.dataset.requiredStage);
+      const unlocked = state.unlockStage >= required;
+      section.classList.toggle("is-unlocked", unlocked);
     });
     stageItems.forEach((item) => {
       const target = Number(item.dataset.stageTarget);
@@ -113,7 +107,7 @@
     );
     if (nextStage !== state.stage) {
       state.stage = nextStage;
-      setOverlay(stageLabels[nextStage], nextStage === 5 ? "Final stage is open." : `Section unlock milestone reached.`);
+      setOverlay(stageLabels[nextStage], nextStage === 5 ? "최종 단계가 열렸습니다." : "섹션 잠금이 해제되었습니다.");
       setUnlockedStage(nextStage);
     } else {
       updateHud();
@@ -143,6 +137,7 @@
   };
 
   const resetRun = (keepProgress = true) => {
+    state.runId += 1;
     state.running = false;
     state.paused = false;
     state.gameOver = false;
@@ -150,37 +145,41 @@
     state.stage = keepProgress ? state.unlockStage : 0;
     state.pipes = [];
     state.spawnTimer = 0;
+    state.lastFrame = 0;
     resetBird();
     updateHud();
-    setOverlay("Ready to start", "Press Start or flap to begin.");
-    setGameState("Ready");
-    btnPause.textContent = "Pause";
+    setOverlay("준비 완료", "시작 버튼이나 위 버튼으로 게임을 시작하세요.");
+    setGameState("대기");
+    btnPause.textContent = "일시정지";
   };
 
   const startRun = () => {
     if (state.gameOver) {
       resetRun(true);
     }
+    if (state.running && !state.gameOver) {
+      return;
+    }
     state.running = true;
     state.paused = false;
-    setOverlay("Game on", "Use Up/Space or the flap button.");
-    setGameState("Running");
-    btnPause.textContent = "Pause";
-    if (!state.lastFrame) {
-      state.lastFrame = performance.now();
-      requestAnimationFrame(loop);
-    }
+    setOverlay("게임 진행 중", "위/Space 또는 위 버튼으로 비행하세요.");
+    setGameState("진행 중");
+    btnPause.textContent = "일시정지";
+    state.lastFrame = performance.now();
+    const activeRunId = state.runId;
+    requestAnimationFrame((time) => loop(time, activeRunId));
   };
 
   const togglePause = () => {
     if (!state.running || state.gameOver) return;
     state.paused = !state.paused;
-    setGameState(state.paused ? "Paused" : "Running");
-    btnPause.textContent = state.paused ? "Resume" : "Pause";
-    setOverlay(state.paused ? "Paused" : "Game on", state.paused ? "Resume to continue the stage run." : "Keep moving forward.");
+    setGameState(state.paused ? "일시정지" : "진행 중");
+    btnPause.textContent = state.paused ? "재개" : "일시정지";
+    setOverlay(state.paused ? "일시정지" : "게임 진행 중", state.paused ? "재개하면 계속 진행됩니다." : "계속 앞으로 나아가세요.");
     if (!state.paused) {
       state.lastFrame = performance.now();
-      requestAnimationFrame(loop);
+      const activeRunId = state.runId;
+      requestAnimationFrame((time) => loop(time, activeRunId));
     }
   };
 
@@ -190,14 +189,14 @@
       startRun();
     }
     state.bird.vy = config.flapVelocity;
-    setGameState("Running");
-    setOverlay("Flying", "Stay above the pipes and clear stages.");
+    setGameState("진행 중");
+    setOverlay("비행 중", "장애물을 피하며 스테이지를 클리어하세요.");
   };
 
   const dive = () => {
     if (!state.running || state.paused || state.gameOver) return;
     state.bird.vy = config.diveVelocity;
-    setOverlay("Diving", "Use it sparingly to correct altitude.");
+    setOverlay("하강 중", "고도를 조정할 때만 잠깐 사용하세요.");
   };
 
   const createPipe = () => {
@@ -229,9 +228,9 @@
     state.bestScore = Math.max(state.bestScore, state.score);
     saveProgress();
     updateHud();
-    setGameState("Game over");
-    setOverlay("Game over", "Press Restart to try the stage climb again.");
-    btnPause.textContent = "Pause";
+    setGameState("게임 오버");
+    setOverlay("게임 오버", "재시작 버튼으로 다시 도전하세요.");
+    btnPause.textContent = "일시정지";
   };
 
   const update = (delta) => {
@@ -260,7 +259,7 @@
         state.bestScore = Math.max(state.bestScore, state.score);
         setStageFromScore();
         saveProgress();
-        setGameState("Running");
+        setGameState("진행 중");
       }
     });
 
@@ -388,9 +387,9 @@
     const { width } = state.dimensions;
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = "600 18px Inter, Arial, sans-serif";
-    ctx.fillText(`Score ${state.score}`, 18, 30);
-    ctx.fillText(`Stage ${state.stage}`, 18, 54);
-    ctx.fillText(`Best ${state.bestScore}`, width - 120, 30);
+    ctx.fillText(`점수 ${state.score}`, 18, 30);
+    ctx.fillText(`단계 ${state.stage}`, 18, 54);
+    ctx.fillText(`최고 ${state.bestScore}`, width - 120, 30);
   };
 
   const render = () => {
@@ -400,14 +399,15 @@
     drawHud();
   };
 
-  const loop = (time) => {
+  const loop = (time, runId) => {
+    if (runId !== state.runId) return;
     if (!state.lastFrame) state.lastFrame = time;
     const delta = Math.min(0.033, (time - state.lastFrame) / 1000);
     state.lastFrame = time;
     update(delta);
     render();
     if (state.running && !state.paused && !state.gameOver) {
-      requestAnimationFrame(loop);
+      requestAnimationFrame((nextTime) => loop(nextTime, runId));
     }
   };
 
@@ -464,8 +464,8 @@
     updateHud();
     render();
     resetRun(true);
-    setOverlay("Ready to start", "Press Start or flap to begin.");
-    setGameState("Ready");
+    setOverlay("준비 완료", "시작 버튼이나 위 버튼으로 게임을 시작하세요.");
+    setGameState("대기");
   };
 
   init();

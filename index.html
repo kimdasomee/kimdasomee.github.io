@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kim Dasomee | AI Profile Lab</title>
-  <meta name="description" content="AI-inspired responsive personal website with a staged Flappy Bird game.">
+  <title>김다솜 | AI Engineer Portfolio</title>
+  <meta name="description" content="AI 엔지니어 김다솜의 반응형 포트폴리오와 단계별 잠금 해제 게임이 있는 정적 웹사이트입니다.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,8 +14,8 @@
     <div class="brand">
       <span class="brand-mark">AI</span>
       <div>
-        <p class="eyebrow">Professional Profile</p>
-        <h1>Kim Dasomee</h1>
+        <p class="eyebrow">AI Engineer Portfolio</p>
+        <h1>김다솜</h1>
       </div>
     </div>
 
@@ -23,7 +23,7 @@
       Menu
     </button>
 
-    <nav class="site-nav" id="primary-nav" aria-label="Primary">
+    <nav class="site-nav" id="primary-nav" aria-label="주요 메뉴">
       <a href="#home">Home</a>
       <a href="#about">About</a>
       <a href="#experience">Experience</a>
@@ -38,15 +38,141 @@
     <section class="hero section" id="home">
       <div class="hero-copy">
         <p class="eyebrow">AI Expert Profile</p>
-        <h2>Clarity, systems thinking, and a game loop that unlocks the story.</h2>
+        <h2>LLM, RAG, 데이터 파이프라인으로 제품화를 완성하는 AI 엔지니어.</h2>
         <p class="lead">
-          This site is intentionally staged: play the game, unlock the sections, and expand the
-          profile one layer at a time. Unverified details stay marked as [사람 확인 필요].
+          문제 해결 능력과 빠른 학습이 강점이며, AI Voice Assistant 상용화와 Bixby RAG 기반 Q&amp;A LLM 개발 경험을 바탕으로
+          데이터 구축, 평가, 배포, 서빙까지 이어지는 흐름을 설계합니다.
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="#games">Play to unlock</a>
-          <a class="button secondary" href="#about">View profile</a>
+          <a class="button primary" href="#games">게임으로 열기</a>
+          <a class="button secondary" href="#about">프로필 보기</a>
         </div>
+      </div>
+
+      <aside class="hero-panel card">
+        <p class="eyebrow">Live status</p>
+        <div class="status-grid">
+          <div>
+            <span class="status-label">Current Stage</span>
+            <strong id="current-stage">대기</strong>
+          </div>
+          <div>
+            <span class="status-label">Best Score</span>
+            <strong id="best-score">0</strong>
+          </div>
+          <div>
+            <span class="status-label">Game State</span>
+            <strong id="game-state">Ready</strong>
+          </div>
+          <div>
+            <span class="status-label">Unlocked</span>
+            <strong id="unlocked-count">0 / 5</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section stage-section" id="about" data-required-stage="1">
+      <div class="content-grid one-up">
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">About</p>
+            <span class="lock-badge">Stage 1 Unlock</span>
+          </div>
+          <h2>문제 해결과 빠른 습득이 강점인 AI 엔지니어</h2>
+          <p class="muted">
+            현재 삼성전자 Language AI Core R&amp;D Group / Data Intelligence Part에서 Samsung Galaxy 음성인식 서비스 Bixby의
+            RAG 기반 Q&amp;A LLM 개발을 담당하고 있습니다.
+          </p>
+          <ul class="detail-list">
+            <li>AI Voice Assistant 기술의 상품화 경험</li>
+            <li>LLM Finetuning, 데이터 구축, GitHub, CI tool, Docker, AWS 서빙 경험</li>
+            <li>문제 해결과 빠른 학습을 바탕으로 제품화 흐름을 연결</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section stage-section" id="experience" data-required-stage="2">
+      <div class="content-grid two-up">
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">Experience</p>
+            <span class="lock-badge">Stage 2 Unlock</span>
+          </div>
+          <h2>Samsung Electronics</h2>
+          <p class="muted">Language AI Core R&amp;D Group / Data Intelligence Part / 2024.02 - Present</p>
+          <ul class="detail-list">
+            <li>Bixby 개인정보 동기화 서비스(PDSS) 백엔드 개발 및 EKS/Kubernetes 운영</li>
+            <li>Datadog 기반 서버 모니터링 체계 구축 및 이슈 대응, 성능 관리</li>
+            <li>Bixby Analytics System의 Solr · Zookeeper 기반 utterance management 개발</li>
+            <li>OpenSearch 기반 OTT-Resolver 신규 개발 및 쿼리 최적화, 평가 파이프라인 설계</li>
+          </ul>
+        </article>
+
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">Earlier Roles</p>
+            <span class="lock-badge unlocked">Always open</span>
+          </div>
+          <h2>AI R&amp;D, Sensor R&amp;D, Product</h2>
+          <p class="muted">2013 - 2024 사이의 제품, 연구, 플랫폼 경험을 압축했습니다.</p>
+          <ul class="detail-list">
+            <li>AI R&amp;D Group / NLU Engine Part / 2020.04 - 2024.02</li>
+            <li>AI R&amp;D Group / Wakeup Engine Part / 2019.04 - 2020.04</li>
+            <li>Health Sensor R&amp;D Group / HW Part / 2016.07 - 2019.04</li>
+            <li>Ybrain / Associate Product Manager / 2013.09 - 2015.09</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section stage-section" id="projects" data-required-stage="3">
+      <div class="content-grid two-up">
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">Projects</p>
+            <span class="lock-badge">Stage 3 Unlock</span>
+          </div>
+          <h2>Drawing Neurons</h2>
+          <p class="muted">배양된 신경세포의 신호 분석을 위한 시각화 툴 개발</p>
+          <ul class="detail-list">
+            <li>신경 신호 분석을 위한 시각화 툴</li>
+            <li>세포 단위 신호 이해를 돕는 인터페이스 설계</li>
+          </ul>
+        </article>
+
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">Projects</p>
+            <span class="lock-badge unlocked">Stage 3 target</span>
+          </div>
+          <h2>MRI Simulator on Android App</h2>
+          <p class="muted">Matlab을 이용한 MR Image Processing 라이브러리 개발 담당</p>
+          <ul class="detail-list">
+            <li>Android App 기반 MRI 시뮬레이터 프로젝트</li>
+            <li>MR Image Processing 라이브러리 개발 지원</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section stage-section" id="research" data-required-stage="4">
+      <div class="content-grid one-up">
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">Research</p>
+            <span class="lock-badge">Stage 4 Unlock</span>
+          </div>
+          <h2>Education, Certificates &amp; Patents</h2>
+          <p class="muted">이력서의 교육, 자격, 특허 정보를 정리했습니다.</p>
+          <ul class="detail-list">
+            <li>KAIST, Bachelor of Science, Bio and Brain Engineering · 2010 - 2015</li>
+            <li>부천북고등학교 · High School Diploma · 2007</li>
+            <li>AWS Education Certificates: The Machine Learning Pipeline on AWS, Developing on AWS</li>
+            <li>Patents: Multi-biometric optical sensor using the front display and camera / Adaptive EPD for streaming speech recognition</li>
+          </ul>
+        </article>
       </div>
 
       <aside class="hero-panel card">
@@ -185,27 +311,27 @@
         </div>
 
         <p class="lead game-intro">
-          Keep moving forward, avoid obstacles, and clear stages to unlock the profile sections.
+          계속 앞으로 나아가며 장애물을 피하고, 스테이지를 클리어하면 프로필 섹션이 하나씩 열립니다.
         </p>
 
         <div class="game-layout">
           <div class="canvas-wrap">
             <canvas id="game-canvas" width="960" height="540" aria-label="Flappy Bird stage game"></canvas>
             <div class="game-overlay" id="game-overlay" aria-live="polite">
-              <strong id="overlay-title">Ready to start</strong>
-              <p id="overlay-copy">Press Start or flap to begin.</p>
+              <strong id="overlay-title">준비 완료</strong>
+              <p id="overlay-copy">시작 버튼이나 위 버튼으로 게임을 시작하세요.</p>
             </div>
           </div>
 
           <div class="control-panel">
             <div class="button-row">
-              <button class="control-btn" type="button" id="btn-flap" aria-label="Up button">Up</button>
-              <button class="control-btn" type="button" id="btn-dive" aria-label="Down button">Down</button>
+              <button class="control-btn" type="button" id="btn-flap" aria-label="위 버튼">위</button>
+              <button class="control-btn" type="button" id="btn-dive" aria-label="아래 버튼">아래</button>
             </div>
             <div class="button-row">
-              <button class="control-btn" type="button" id="btn-start">Start</button>
-              <button class="control-btn" type="button" id="btn-pause">Pause</button>
-              <button class="control-btn" type="button" id="btn-restart">Restart</button>
+              <button class="control-btn" type="button" id="btn-start">시작</button>
+              <button class="control-btn" type="button" id="btn-pause">일시정지</button>
+              <button class="control-btn" type="button" id="btn-restart">재시작</button>
             </div>
 
             <div class="stage-list" aria-label="Stage unlocks">
@@ -235,29 +361,27 @@
       </article>
     </section>
 
-    <section class="section section-grid" id="contact" data-required-stage="5">
-      <article class="content-card card lockable">
-        <div class="section-head">
-          <p class="eyebrow">Contact</p>
-          <span class="lock-badge">Unlocks at Final Stage</span>
-        </div>
-        <h2>[사람 확인 필요]</h2>
-        <p class="muted">The final clear opens contact details and links.</p>
-        <div class="locked-copy">
-          <p>Stage 5 is required before this section opens.</p>
-        </div>
-        <div class="unlocked-copy">
+    <section class="section stage-section" id="contact" data-required-stage="5">
+      <div class="content-grid one-up">
+        <article class="content-card card">
+          <div class="section-head">
+            <p class="eyebrow">Contact</p>
+            <span class="lock-badge">Final Stage Unlock</span>
+          </div>
+          <h2>연락처</h2>
+          <p class="muted">마지막 스테이지를 클리어하면 연락처와 링크가 열립니다.</p>
           <ul class="detail-list">
-            <li>Email, portfolio, or social links confirmed from the reference.</li>
-            <li>Final CTA and contact route.</li>
+            <li>Email: dasom.ruby.kim@gmail.com</li>
+            <li>Phone: 010-2661-9478</li>
+            <li>LinkedIn: https://www.linkedin.com/in/kimdasomee</li>
           </ul>
-        </div>
-      </article>
+        </article>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>Built as a stage-locked AI profile lab for GitHub Pages.</p>
+    <p>AI 전문가 감성을 살린 반응형 포트폴리오와 단계별 잠금 해제 게임입니다.</p>
   </footer>
 
   <script src="script.js" defer></script>
